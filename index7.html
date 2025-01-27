@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login, Sign-Up, and Profile Activity</title>
+  <link rel="stylesheet" href="index7.css">
+</head>
+<body>
+  <!-- Hospital Name -->
+  <div class="hospital-name">My Hospital</div>
+
+  <!-- Login Page -->
+  <div id="login-page" class="container">
+    <h2>Login</h2>
+    <select id="login-role">
+      <option value="patient">Patient</option>
+      <option value="doctor">Doctor</option>
+    </select>
+    <input type="text" id="name" placeholder="Enter your name">
+    <input type="text" id="id" placeholder="Enter your ID">
+    <input type="password" id="password" placeholder="Enter your password">
+    <button onclick="login()">Login</button>
+    <div class="signup-text">
+      <span>You not sign in yet?</span>
+      <button onclick="redirectToSignUp()">Sign Up</button>
+    </div>
+  </div>
+
+  <!-- Sign-Up Page -->
+  <div id="signup-page" class="container" style="display: none;">
+    <h2>Sign Up</h2>
+    <div class="grid-container">
+      <div class="grid-item">
+        <select id="signup-role">
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor</option>
+        </select>
+      </div>
+      <div class="grid-item">
+        <input type="text" id="signup-name" placeholder="Name">
+      </div>
+      <div class="grid-item">
+        <input type="text" id="first-name" placeholder="First Name">
+      </div>
+      <div class="grid-item">
+        <input type="date" id="birthday" placeholder="Birthday">
+      </div>
+      <div class="grid-item">
+        <input type="text" id="birthplace" placeholder="Birthday Place">
+      </div>
+      <div class="grid-item">
+        <input type="text" id="signup-id" placeholder="ID">
+      </div>
+      <div class="grid-item">
+        <input type="tel" id="phone" placeholder="Phone Number">
+      </div>
+      <div class="grid-item">
+        <input type="email" id="email" placeholder="Email">
+      </div>
+      <div id="doctor-fields" class="grid-item" style="display: none;">
+        <input type="text" id="specialty" placeholder="Specialty">
+      </div>
+    </div>
+    <button onclick="submitSignUp()">Submit</button>
+    <div class="signup-text">
+      <span>Already have an account?</span>
+      <button onclick="redirectToLogin()">Login</button>
+    </div>
+  </div>
+
+  <!-- Profile Page -->
+  <div id="profile-page" class="container" style="display: none;">
+    <h2 id="profile-title"></h2>
+    <div class="profile-info">
+      <p><strong>Name:</strong> <span id="profile-name"></span></p>
+      <p><strong>ID:</strong> <span id="profile-id"></span></p>
+      <p><strong>First Name:</strong> <span id="profile-first-name"></span></p>
+      <p><strong>Birthday:</strong> <span id="profile-birthday"></span></p>
+      <p><strong>Birthplace:</strong> <span id="profile-birthplace"></span></p>
+      <p><strong>Phone Number:</strong> <span id="profile-phone"></span></p>
+      <p><strong>Email:</strong> <span id="profile-email"></span></p>
+      <div id="doctor-profile-info" style="display: none;">
+        <p><strong>Specialty:</strong> <span id="profile-specialty"></span></p>
+        <button onclick="editProfile()">Edit Profile</button>
+        <div id="edit-profile-fields" style="display: none;">
+          <input type="text" id="edit-career" placeholder="Career">
+          <input type="text" id="edit-specialty" placeholder="Specialty">
+          <button onclick="saveProfile()">Save</button>
+        </div>
+        <div id="uploaded-files">
+          <h3>Uploaded Files</h3>
+          <ul id="file-list"></ul>
+          <input type="file" id="file-upload" accept=".pdf,.jpg,.png">
+          <button onclick="uploadFile()">Upload</button>
+        </div>
+        <div id="appointment-schedule">
+          <h3>Appointment Schedule</h3>
+          <input type="datetime-local" id="appointment-time">
+          <button onclick="scheduleAppointment()">Schedule Appointment</button>
+          <div id="appointment-list">
+            <h4>Scheduled Appointments</h4>
+            <ul id="appointments"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="patient-doctor-info" style="display: none;">
+      <h3>Doctor Information</h3>
+      <p><strong>Doctor Name:</strong> <span id="doctor-name"></span></p>
+      <p><strong>Doctor Specialty:</strong> <span id="doctor-specialty"></span></p>
+    </div>
+    <button onclick="redirectToLogin()">Logout</button>
+  </div>
+
+  <script>
+    let userData = {}; // Store user data after sign-up or login
+    let doctorData = { // Simulated doctor data
+      name: "Dr. Smith",
+      id: "DOC123",
+      specialty: "Cardiology",
+      career: "Cardiologist",
+      files: [],
+      appointments: []
+    };
+
+    // Function to generate a random password
+    function generatePassword() {
+      const length = 8; // Password length
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * charset.length);
+        password += charset[randomIndex];
+      }
+      return password;
+    }
+
+    // Function to simulate sending password via email and SMS
+    function sendPassword(email, phone, password) {
+      // Simulate sending email
+      console.log(`Sending password to email: ${email}`);
+      console.log(`Email Content: Your password is ${password}`);
+
+      // Simulate sending SMS
+      console.log(`Sending password to phone: ${phone}`);
+      console.log(`SMS Content: Your password is ${password}`);
+    }
+
+    // Redirect to Sign-Up Page
+    function redirectToSignUp() {
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("signup-page").style.display = "block";
+    }
+
+    // Redirect to Login Page
+    function redirectToLogin() {
+      document.getElementById("profile-page").style.display = "none";
+      document.getElementById("signup-page").style.display = "none";
+      document.getElementById("login-page").style.display = "block";
+    }
+
+    // Show/Hide Doctor Fields in Sign-Up Page
+    document.getElementById("signup-role").addEventListener("change", function () {
+      const doctorFields = document.getElementById("doctor-fields");
+      if (this.value === "doctor") {
+        doctorFields.style.display = "block";
+      } else {
+        doctorFields.style.display = "none";
+      }
+    });
+
+    // Login Function
+    function login() {
+      const role = document.getElementById("login-role").value;
+      const name = document.getElementById("name").value;
+      const id = document.getElementById("id").value;
+      const password = document.getElementById("password").value;
+
+      if (name && id && password) {
+        // Simulate fetching user data (in a real app, this would come from a server)
+        if (userData.name === name && userData.id === id && userData.password === password) {
+          displayProfile(userData, role); // Display profile page
+        } else {
+          alert("Invalid credentials. Please try again.");
+        }
+      } else {
+        alert("Please enter your name, ID, and password.");
+      }
+    }
+
+    // Submit Sign-Up Function
+    function submitSignUp() {
+      const role = document.getElementById("signup-role").value;
+      const name = document.getElementById("signup-name").value;
+      const firstName = document.getElementById("first-name").value;
+      const birthday = document.getElementById("birthday").value;
+      const birthplace = document.getElementById("birthplace").value;
+      const id = document.getElementById("signup-id").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const specialty = document.getElementById("specialty").value;
+
+      if (name && firstName && birthday && birthplace && id && phone && email) {
+        // Generate a random password
+        const password = generatePassword();
+
+        // Save user data with the generated password
+        userData = { role, name, firstName, birthday, birthplace, id, phone, email, specialty, password };
+
+        // Simulate sending the password via email and SMS
+        sendPassword(email, phone, password);
+
+        alert(`Sign-Up Successful! Your password has been sent to ${email} and ${phone}.`);
+        redirectToLogin(); // Redirect to Login Page
+      } else {
+        alert("Please fill out all fields.");
+      }
+    }
+
+    // Display Profile Page
+    function displayProfile(data, role) {
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("signup-page").style.display = "none";
+      document.getElementById("profile-page").style.display = "block";
+
+      // Set profile title
+      document.getElementById("profile-title").textContent = role === "patient" ? "Patient Profile" : "Doctor Profile";
+
+      // Populate profile fields
+      document.getElementById("profile-name").textContent = data.name;
+      document.getElementById("profile-id").textContent = data.id;
+      document.getElementById("profile-first-name").textContent = data.firstName;
+      document.getElementById("profile-birthday").textContent = data.birthday;
+      document.getElementById("profile-birthplace").textContent = data.birthplace;
+      document.getElementById("profile-phone").textContent = data.phone;
+      document.getElementById("profile-email").textContent = data.email;
+
+      // Show doctor-specific fields if the user is a doctor
+      if (role === "doctor") {
+        document.getElementById("doctor-profile-info").style.display = "block";
+        document.getElementById("profile-specialty").textContent = data.specialty;
+
+        // Load uploaded files
+        loadFiles();
+        // Load appointments
+        loadAppointments();
+      } else {
+        document.getElementById("doctor-profile-info").style.display = "none";
+      }
+
+      // Show doctor information for patients
+      if (role === "patient") {
+        document.getElementById("patient-doctor-info").style.display = "block";
+        document.getElementById("doctor-name").textContent = doctorData.name;
+        document.getElementById("doctor-specialty").textContent = doctorData.specialty;
+      } else {
+        document.getElementById("patient-doctor-info").style.display = "none";
+      }
+    }
+
+    // Edit Profile Function
+    function editProfile() {
+      const editFields = document.getElementById("edit-profile-fields");
+      editFields.style.display = "block";
+      document.getElementById("edit-career").value = doctorData.career || "";
+      document.getElementById("edit-specialty").value = doctorData.specialty || "";
+    }
+
+    // Save Profile Function
+    function saveProfile() {
+      const career = document.getElementById("edit-career").value;
+      const specialty = document.getElementById("edit-specialty").value;
+      doctorData.career = career;
+      doctorData.specialty = specialty;
+      alert("Profile updated successfully!");
+      document.getElementById("edit-profile-fields").style.display = "none";
+      displayProfile(doctorData, "doctor"); // Refresh profile display
+    }
+
+    // Upload File Function
+    function uploadFile() {
+      const fileInput = document.getElementById("file-upload");
+      const file = fileInput.files[0];
+      if (file) {
+        doctorData.files.push(file.name);
+        loadFiles();
+        alert("File uploaded successfully!");
+      } else {
+        alert("Please select a file to upload.");
+      }
+    }
+
+    // Load Uploaded Files
+    function loadFiles() {
+      const fileList = document.getElementById("file-list");
+      fileList.innerHTML = "";
+      doctorData.files.forEach(file => {
+        const li = document.createElement("li");
+        li.textContent = file;
+        fileList.appendChild(li);
+      });
+    }
+
+    // Schedule Appointment Function
+    function scheduleAppointment() {
+      const appointmentTime = document.getElementById("appointment-time").value;
+      if (appointmentTime) {
+        doctorData.appointments.push(appointmentTime);
+        loadAppointments();
+        alert("Appointment scheduled successfully!");
+        // Simulate sending notification to patients
+        console.log(`Notification sent to patients: New appointment at ${appointmentTime}`);
+      } else {
+        alert("Please select a date and time for the appointment.");
+      }
+    }
+
+    // Load Appointments
+    function loadAppointments() {
+      const appointmentsList = document.getElementById("appointments");
+      appointmentsList.innerHTML = "";
+      doctorData.appointments.forEach(appointment => {
+        const li = document.createElement("li");
+        li.textContent = appointment;
+        appointmentsList.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
